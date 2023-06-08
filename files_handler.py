@@ -7,6 +7,10 @@ app = Flask(__name__)
 def index():
     return render_template('index.html')
 
+@app.route('/map')
+def map():
+    return render_template('map.html')
+
 # Route to serve static files
 @app.route('/static/<path:filename>')
 def serve_static(filename):

@@ -2,14 +2,256 @@
 
 {% block content %}
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <div class="landing-panel">
-                <h1>מפה</h1>
-            </div>
-        </div>
-    </div>
+<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css" rel="stylesheet" />
+<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
+<link type="text/css" href="{{ url_for('serve_static', filename='css/maps.css') }}" rel="stylesheet" />
+<script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+
+<div id="map"></div>
+<!-- Modal -->
+<div class="modal" id="PickupModal">
+	<div class="container modal_inner_wrapper_wrapper mt-2">
+		<div class="modal_inner_wrapper col-12 col-md-10 col-lg-10 col-xl-8">
+			<div class="modal-dialog col-12 m-0">
+				<div class="modal-content col-12 m-0">
+					<div class="modal-header col-12 m-0">
+						<h4 class="modal-title">Packages</h4>
+						<button type="button" class="close btnModalDismiss" data-dismiss="modal">&times;</button>
+					</div>
+					<div class="modal-body col-12 m-0">
+						<!-- Table -->
+						<table class="table table-bordered" id="dynamicTable" style="width:100%">
+							<thead>
+								<tr>
+									<th>Title</th>
+									<th>Address</th>
+									<th>Bounty</th>
+									<th>Select</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary btnModalDismiss" data-dismiss="modal"
+							id="btnSave">Save
+							changes</button>
+						<button type="button" class="btn btn-secondary btnModalDismiss"
+							data-dismiss="modal">Close</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
 </div>
+<div class="container slider_wrapper">
+	<div class="row align-items-end">
+		<div class="col-2 col-md-2 ">
+			<label for="RangeSlider" class="form-label">Range</label>
+			<input type="range" class="form-range" min="0.1" max="20" step="0.1" id="RangeSlider">
+		</div>
+	</div>
+</div>
+
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+	$(document).ready(function () {
+		let prev_range = 0 //TODO FETCH
+		mapboxgl.accessToken = 'pk.eyJ1IjoiYXJlbDY0IiwiYSI6ImNsaW15cmk0bzBiZTMzZGx3Y3ZqeDQxaTgifQ._GOxfOthk6aSqNiVUP9JKw';
+		const geojson = {
+			'type': 'LocationCollection',
+			'locations': [
+				{
+					'type': 'Feature',
+					'geometry': {
+						'type': 'Point',
+						'coordinates': [34.855495, 32.109334]
+					},
+					'properties':
+						[
+							{
+								'Title': 'Package For Pickup!',
+								'Address': 'Ibn Gabirol 53',
+								'Bounty': '5 Credits',
+
+							},
+							{
+								'Title': 'Package For Pickup!',
+								'Address': 'Ibn Gabirol 53',
+								'Bounty': '5 Credits'
+							},
+							{
+								'Title': 'Package For Pickup!',
+								'Address': 'Ibn Gabirol 53',
+								'Bounty': '5 Credits'
+							}
+
+						]
+				}
+				,
+				{
+					'type': 'Feature',
+					'geometry': {
+						'type': 'Point',
+						'coordinates': [34.855595, 32.109334]
+					},
+					'properties':
+						[
+							{
+								'Title': 'Package For Pickup!',
+								'Address': 'Ibn Gabirol 53',
+								'Bounty': '5 Credits'
+							},
+							{
+								'Title': 'Package For Pickup!',
+								'Address': 'Ibn Gabirol 53',
+								'Bounty': '5 Credits'
+							},
+							{
+								'Title': 'Package For Pickup!',
+								'Address': 'Ibn Gabirol 53',
+								'Bounty': '5 Credits'
+							}
+
+						]
+				}
+			]
+		};
+		const coordsTuple = [34.855495, 32.109334]
+		var createGeoJSONCircle = function (center, radiusInKm, points) {
+			if (!points) points = 64;
+
+			var coords = {
+				latitude: center[1],
+				longitude: center[0]
+			};
+
+			var km = radiusInKm;
+
+			var ret = [];
+			var distanceX = km / (111.320 * Math.cos(coords.latitude * Math.PI / 180));
+			var distanceY = km / 110.574;
+
+			var theta, x, y;
+			for (var i = 0; i < points; i++) {
+				theta = (i / points) * (2 * Math.PI);
+				x = distanceX * Math.cos(theta);
+				y = distanceY * Math.sin(theta);
+
+				ret.push([coords.longitude + x, coords.latitude + y]);
+			}
+			ret.push(ret[0]);
+
+			return {
+				"type": "geojson",
+				"data": {
+					"type": "FeatureCollection",
+					"features": [{
+						"type": "Feature",
+						"geometry": {
+							"type": "Polygon",
+							"coordinates": [ret]
+						}
+					}]
+				}
+			};
+		};
+		const map = new mapboxgl.Map({
+			container: 'map',
+			style: 'mapbox://styles/mapbox/light-v11',
+			center: [34.855499, 32.109333],
+			zoom: 13
+		});
+
+
+		// add markers to map
+		for (const location of geojson.locations) {
+
+			const el = document.createElement('div');
+			el.className = 'marker';
+
+			// make a marker for each feature and add it to the map
+
+			new mapboxgl.Marker(el)
+				.setLngLat(location.geometry.coordinates)
+				.addTo(map);
+		}
+		map.on('load', function () {
+			map.addSource("polygon", createGeoJSONCircle(coordsTuple, prev_range))
+			map.addLayer({
+				"id": "polygon",
+				"type": "fill",
+				"source": "polygon",
+				"layout": {},
+				"paint": {
+					"fill-color": "blue",
+					"fill-opacity": 0.3
+				}
+			});
+		});
+		jQuery('#PickupModal').on('show.bs.modal', function () {
+			if ($.fn.DataTable.isDataTable('#dynamicTable')) {
+				table.destroy();
+			}
+			table = $('#dynamicTable').DataTable({
+				data: geojson.locations[0].properties,
+				columns: [
+					{ data: 'Title' },
+					{ data: 'Address' },
+					{ data: 'Bounty' },
+					{ data: null, defaultContent: "" }
+				],
+				select: {
+					style: 'multi',
+				},
+				columnDefs: [{
+					orderable: false,
+					className: 'select-checkbox',
+					targets: 3
+				}]
+			});
+		});
+		jQuery('#btnSave').on('click', function () {
+			var data = table.rows({ selected: true }).data();
+			console.log(data);
+
+		});
+		jQuery('.btnModalDismiss').on('click', function () {
+			jQuery('#PickupModal').modal('hide');
+		});
+		jQuery('.marker').on('click', function () {
+			jQuery(
+				'#PickupModal'
+			).modal('show');
+		});
+		jQuery('body div.container').removeClass('container').
+			addClass('container-fluid').addClass('p-0').addClass('m-0');
+		jQuery("#RangeSlider").on("input", function () {
+
+			setInterval(function () {
+				let range = jQuery("#RangeSlider").val();
+				if (prev_range != range) {
+					prev_range = range;
+					//*call server
+					map.getSource('polygon').setData(createGeoJSONCircle(coordsTuple, prev_range).data);
+				}
+			}, 1000);
+
+
+		});
+	});
+</script>
 
 {% endblock %}

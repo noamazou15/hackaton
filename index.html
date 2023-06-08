@@ -8,6 +8,7 @@
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" />
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css" rel="stylesheet" />
+	<link href="https://cdn.datatables.net/select/1.3.3/css/select.dataTables.min.css" rel="stylesheet" />
 	<link href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet" />
 	<link href="./index.css" rel="stylesheet" />
 
@@ -32,7 +33,7 @@
 								<th>Title</th>
 								<th>Address</th>
 								<th>Bounty</th>
-								<!-- <th>Select</th> -->
+								<th>Select</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -49,7 +50,7 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 	<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-
+	<script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
 	<script>
 		$(document).ready(function () {
 
@@ -143,15 +144,17 @@
 					columns: [
 						{ data: 'Title' },
 						{ data: 'Address' },
-						{ data: 'Bounty' }
-						// { data: 'Select' },
-						
+						{ data: 'Bounty' },
+						{ data: null, defaultContent: "" }						
 					],
-					 select: {
-						select: true,
+					select: {
 						style: 'multi',
-						selector: 'td:first-child'
 					},
+					columnDefs: [{
+						orderable: false,
+						className: 'select-checkbox',
+						targets: 3
+					}]
 				});
 			});
 			jQuery('.marker').on('click', function () {

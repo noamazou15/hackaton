@@ -11,40 +11,74 @@ let myPickups = [
 ];
 
 // Display my packages
-function displayMyPackages() {
-    // Remove active class from all buttons
-    document.getElementById("myPackagesTab").classList.add("active");
-    document.getElementById("myPickupsTab").classList.remove("active");
+// function displayMyPackages(data) {
+//     // Remove active class from all buttons
+//     document.getElementById("myPackagesTab").classList.add("active");
+//     document.getElementById("myPickupsTab").classList.remove("active");
 
-    const packageList = document.getElementById("packageList");
-    packageList.innerHTML = "";
+//     const packageList = document.getElementById("packageList");
+//     packageList.innerHTML = "";
 
-    for (const package of myPackages) {
-        const listItem = document.createElement("a");
-        listItem.href = "#";
-        listItem.className = "list-group-item list-group-item-action flex-column align-items-start";
-        listItem.addEventListener("click", () => togglePackageDetails(listItem, package));
+//     for (const package of myPackages) {
+//         const listItem = document.createElement("a");
+//         listItem.href = "#";
+//         listItem.className = "list-group-item list-group-item-action flex-column align-items-start";
+//         listItem.addEventListener("click", () => togglePackageDetails(listItem, package));
 
-        const itemContent = `
+//         const itemContent = `
+//       <div class="d-flex w-100 justify-content-between">
+//         <h5 class="mb-1">${package.description}</h5>
+//         <small>${package.status}</small>
+//       </div>
+//       <p class="mb-1">Package ID: ${package.id}</p>
+//       <div class="package-details" style="display: none;">
+//         <br>
+//         <p>Pickup Address: ${package.pickupAddress}</p>
+//         <p>Delivery Address: ${package.deliveryAddress}</p>
+//         <p>Instructions: ${package.notes}</p>
+//       </div>
+//       <button class="btn btn-success btn-sm" onclick="markPackageReceived(${package.id}); removePackageItem(${package.id})">Received</button>
+//     `;
+
+//         listItem.innerHTML = itemContent;
+//         packageList.appendChild(listItem);
+//     }
+// }
+function displayMyPackages(data) {
+  // Remove active class from all buttons
+  document.getElementById("myPackagesTab").classList.add("active");
+  document.getElementById("myPickupsTab").classList.remove("active");
+
+  const packageList = document.getElementById("packageList");
+  packageList.innerHTML = "";
+
+  data.forEach(package => { // Iterate over the data array from the backend
+    let listItem = document.createElement("a");
+    listItem.href = "#";
+    listItem.className = "list-group-item list-group-item-action flex-column align-items-start";
+    listItem.addEventListener("click", () => togglePackageDetails(listItem, package));
+
+    let itemContent = `
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">${package.description}</h5>
         <small>${package.status}</small>
       </div>
-      <p class="mb-1">Package ID: ${package.id}</p>
+      <p class="mb-1">Package ID: ${package._id}</p>
       <div class="package-details" style="display: none;">
         <br>
-        <p>Pickup Address: ${package.pickupAddress}</p>
-        <p>Delivery Address: ${package.deliveryAddress}</p>
-        <p>Instructions: ${package.notes}</p>
+        <p>Pickup Address: ${package.pickup_location}</p>
+        <p>Delivery Address: ${package.dropoff_location}</p>
+        <p>Instructions: ${package.description}</p>
       </div>
-      <button class="btn btn-success btn-sm" onclick="markPackageReceived(${package.id}); removePackageItem(${package.id})">Received</button>
+      <button class="btn btn-success btn-sm" onclick="markPackageReceived('${package._id}'); removePackageItem('${package._id}')">Received</button>
     `;
 
-        listItem.innerHTML = itemContent;
-        packageList.appendChild(listItem);
-    }
+    listItem.innerHTML = itemContent;
+    packageList.appendChild(listItem);
+  });
 }
 
+  
 // Display my pickups
 function displayMyPickups() {
     // Remove active class from all buttons
@@ -125,3 +159,20 @@ document.getElementById("myPickupsTab").addEventListener("click", displayMyPicku
 
 // Initialize the page when the DOM is loaded
 document.addEventListener("DOMContentLoaded", initializePage);
+
+
+function getTheDataShit(){
+    fetch('http://127.0.0.1:5000/packeges/my_packages')
+    .then(response => response.json())
+    .then(data => {
+      console.log(data);
+      
+      displayMyPackages(data);
+    })
+    .catch(error => {
+    console.error('Error:', error);
+  });
+
+}
+
+getTheDataShit();

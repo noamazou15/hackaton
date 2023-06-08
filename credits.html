@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Credits</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/confetti-js"></script>
+  <script src="jquery.confetti.js"></script>
+  <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .popup-buyMore, .popup-cashOut, .popup-giveBack {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        background: #acc4e9;
+        
+        padding: 20px;
+        z-index: 100;
+        border-radius: 10px;
+    }
+   
+    .container {
+        padding: auto;
+    }
+    .selected {
+    border: 2px solid rgb(31, 168, 56);
+    }
+
+    .card-body{
+        width: 170px;
+        height: 200px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="row" style="top: 0%;">
+        <div class="col">
+            <h1>Credits</h1>
+            <br>
+            <br>
+        </div>
+    </div>
+
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary" id="buyCreditsBtn">Buy More Credits</button>
+        <!-- Buy More Credits Popup -->
+        <div id="buyCreditsPopup" class="popup-buyMore">
+            <h2>Buy More Credits</h2>
+            <p>Select a bundle:</p>
+            <div class="row">
+              <div class="col-md-4">
+                <div id="basic" class="card pricing-card">
+                  <div class="card-header">
+                    <h3>Basic</h3>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="card-title">$10 for 20 credits</h4>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                  </div>
+                </div>
+              </div>
+          
+              <div class="col-md-4">
+                <div id="standard" class="card pricing-card">
+                  <div class="card-header">
+                    <h3>Standard</h3>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="card-title">$20 for 45 credits</h4>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                  </div>
+                </div>
+              </div>
+          
+              <div class="col-md-4">
+                <div id="premium" class="card pricing-card">
+                  <div class="card-header">
+                    <h3>Premium</h3>
+                  </div>
+                  <div class="card-body">
+                    <h4 class="card-title">$30 for 70 credits</h4>
+                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center" style="padding: 10px;">
+              <button id="buyThisShit" class="btn btn-primary">Pay</button>
+            </div>
+          </div>
+    </div>
+  </div>
+  <br>
+  <br>
+
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary" id="cashOutBtn">Cash Out</button>
+    <!-- Cash Out Popup -->
+    <div id="cashOutPopup" class="popup-cashOut" style="width: 400px; height: 300px;">
+        <h1>Cash Out</h2>
+        <br>
+        <h3>Your current credits: <span id="currentCredits">55</span></h3>
+        <h3>Amount to cash out: <span id="cashOutAmount">23</span></h3>
+        <br>
+        <br>
+        <br>
+        <button class="btn btn-primary" id="confirmCashOutBtn">I want to cash out</button>
+        <br>
+    </div>
+    </div>
+  </div>
+
+  
+  <br>
+  <br>
+
+  <div class="row">
+    <div class="col">
+      <button class="btn btn-primary" id="giveBackBtn">Give Back</button>
+      <!-- Give Back Popup -->
+      <div id="giveBackPopup" class="popup-giveBack" style="text-align: center;">
+        <h3>Supporting the Elderly: Making a Difference Together</h3>
+        <p>Help us improve the lives of the elderly in need. 100% of your donation goes directly to supporting the elderly, ensuring they receive the care and resources they deserve. Your contribution provides essential services, healthcare, and social engagement programs. Together, let's bring comfort and companionship to those who have contributed so much.</p>
+        <div class="row justify-content-center">
+          <div class="col-md-4">
+            <div id="startConfetti" class="card giving-card btn btn-primary btn-lg rounded-circle">
+              <div class="card-body" style="text-align: center;">
+                <h4 class="card-title">Donate your credits</h4>
+                <p class="card-text">Click here</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <canvas id="confetti-container"></canvas> 
+      </div>
+      
+    </div>
+  </div>
+  </div>
+  
+
+  <script>
+
+    
+    var buyCreditsBtn = document.getElementById("buyCreditsBtn");    //click for the popup
+    
+    buyCreditsBtn.addEventListener("click", function() {
+      buyCreditsPopup.style.display = "block";
+      cashOutPopup.style.display = "none";
+      giveBackPopup.style.display = "none";
+    });
+
+
+    const cards = document.querySelectorAll('.pricing-card');
+
+cards.forEach(card => {
+  card.addEventListener('click', () => {
+    cards.forEach(c => c.querySelector('.card-body').classList.remove('selected'));
+    card.querySelector('.card-body').classList.add('selected');
+  });
+});
+
+const buyButton = document.getElementById('buyThisShit');
+buyButton.addEventListener('click', () => {
+  const selectedCard = document.querySelector('.card-body.selected');
+  console.log(selectedCard);
+  if (selectedCard) {
+    const amount = getSelectedAmount(selectedCard.parentNode.id);
+    credits = amount;
+    fetch('/api/users/credits', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ credits }),
+    })
+    .then(response => {
+        if (response.ok) {
+        // Request was successful
+        console.log('Success!');
+        } else {
+            console.log('Failed!');
+        }
+    })
+    .then(data => {
+        console.log(data);
+    })
+    .catch(error => {
+        console.error(error);
+    });
+
+  }
+});
+
+function getSelectedAmount(cardId) {
+  switch (cardId) {
+    case 'basic':
+      return 20;
+    case 'standard':
+      return 45;
+    case 'premium':
+      return 70;
+    default:
+      return 0;
+  }
+}
+
+
+
+const cashOutBtn = document.getElementById('cashOutBtn');
+const cashOutPopup = document.getElementById('cashOutPopup');
+const currentCreditsSpan = document.getElementById('currentCredits');
+
+cashOutBtn.addEventListener('click', () => {
+    buyCreditsPopup.style.display = "none";
+    cashOutPopup.style.display = "block";
+    giveBackPopup.style.display = "none";
+
+  // Make an API call to fetch current credits
+  fetch('/api/users/credits')
+    .then(response => {
+      if (response.ok) {
+        return response.json();
+      } else {
+        throw new Error('Error: ' + response.status);
+      }
+    })
+    .then(data => {
+      // Update the currentCreditsSpan with the received data
+      currentCreditsSpan.textContent = data.credits;
+      cashOutAmount.textContent = data.credits / 2;
+    })
+    .catch(error => {
+      console.error(error);
+    });
+});
+
+const confirmCashOutBtn = document.getElementById('confirmCashOutBtn');
+confirmCashOutBtn.addEventListener('click', () => {
+    credits = 100000;
+    fetch('/api/users/credits', {
+        method: 'POST',
+        headers: {
+        'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ credits }),
+    })
+        .then(response => {
+        if (response.ok) {
+            // Request was successful
+            console.log('Success!');
+        } else {
+            console.log('Failed!');
+        }
+        })
+        .then(data => {
+        console.log(data);
+        console.alert("You have cashed out!");
+        })
+        .catch(error => {
+        console.error(error);
+        });
+});
+
+
+const giveBackBtn = document.getElementById('giveBackBtn');
+const giveBackPopup = document.getElementById('giveBackPopup');
+giveBackBtn.addEventListener('click', () => {
+    buyCreditsPopup.style.display = "none";
+    cashOutPopup.style.display = "none";
+    giveBackPopup.style.display = "block";
+});
+
+
+document.getElementById('startConfetti').addEventListener('click', function() {
+    // Show confetti animation
+    var confettiSettings = {
+      target: 'confetti-container',
+      respawn: true,
+      props: ['square', 'triangle', 'line'],
+      particleCount: 150,
+      start_from_edge: true,
+    };
+    var confetti = new ConfettiGenerator(confettiSettings);
+    confetti.render();
+
+    // Stop confetti after 5 seconds
+    setTimeout(function() {
+      confetti.clear();
+    }, 5000);
+    // Send a fetch request to the endpoint
+    // fetch('api/users/credits', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json'
+    //   },
+    //   body: JSON.stringify({ credits: 10000 })
+    // })
+    // .then(response => {
+    //   // Handle the response here
+    //   console.log(response);
+    // })
+    // .catch(error => {
+    //   // Handle any errors here
+    //   console.error(error);
+    // });
+  });
+
+  </script>
+</body>
+</html>

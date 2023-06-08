@@ -1,11 +1,7 @@
 import os
-import uuid
 
 from flask import Flask, url_for
 from flask_restx import Api
-from flask import session
-from flask_restx import Resource, fields, abort
-from flask_restx.namespace import Namespace
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi

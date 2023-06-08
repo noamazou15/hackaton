@@ -15,6 +15,14 @@ def map():
 def packages():
     return render_template('packages.html')
 
+@app.route('/newPickupRequest')
+def new_pickup_request():
+    return render_template('newPickupRequest.html')
+
+@app.route('/credits')
+def credits():
+    return render_template('credits.html')
+
 # Route to serve static files
 @app.route('/static/<path:filename>')
 def serve_static(filename):

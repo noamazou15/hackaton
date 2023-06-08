@@ -7,7 +7,7 @@ from pymongo.server_api import ServerApi
 
 from enum import Enum
 
-from utils import update_credits 
+from utils import update_credits , convert_objectid_to_str
 class Status(Enum):
     WAITING = 'waiting'
     ASSIGNED = 'assigned'
@@ -17,7 +17,7 @@ class Status(Enum):
 
 
 
-uri = "localhost:27017"
+uri = "mongodb+srv://root:root@cluster0.npjz8p7.mongodb.net/"
 mongo_client = MongoClient(uri, server_api=ServerApi('1'))["hackaton"]
 
 
@@ -33,13 +33,12 @@ class Package(Resource):
         packageID = payload.get('packageID')
         description = payload.get('description')
         notes = payload.get('extraNotes')
-        status = 'waiting'
         user_session = session.get('user_session')
         user_id = mongo_client.users.find_one({'user_session': user_session})['_id']
         mongo_client.packages.insert_one({'pickup_location': pickup,'description':description,
                 'dropoff_location': dropoff, 'status':Status.WAITING, 'demanding_user_id': user_id,
                 'pickup_user_id':None,
-                '_id': packageID, 'notes': notes,'user_session': user_id})
+                '_id': packageID, 'notes': notes,'user_id': user_id})
         
         update_credits(user_to_pay=user_id, credits=1)
 
@@ -51,7 +50,8 @@ class My_package(Resource):
         user_session = session.get('user_session')
         user_id = mongo_client.users.find_one({'user_session': user_session})['_id']
         packages = mongo_client.packages.find({'demanding_user_id': user_id})
-        return list(packages)
+        packages = convert_objectid_to_str(list(packages))
+        return packages
     
 @ns_packages.route('/my_pickups')
 class My_pickups(Resource):
@@ -59,7 +59,9 @@ class My_pickups(Resource):
         user_session = session.get('user_session')
         user_id = mongo_client.users.find_one({'user_session': user_session})['_id']
         packages = mongo_client.packages.find({'pickup_user_id': user_id})
-        return list(packages)
+        packages = convert_objectid_to_str(list(packages))
+        return packages
+        
 
 
 

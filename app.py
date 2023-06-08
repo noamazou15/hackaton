@@ -16,7 +16,7 @@ import namespaces
 uri = "localhost:27017"
 # Create a new client and connect to the server
 mongo_client = MongoClient(uri, server_api=ServerApi('1'))["hackaton"]
-ENABLE_SWAGGER = os.environ.get('ENABLE_SWAGGER', False)
+ENABLE_SWAGGER = os.environ.get('ENABLE_SWAGGER', True)
 
 
 
@@ -40,6 +40,8 @@ api = AppApi(version="1.0", title="My API", description="Platform", prefix='/api
 api.init_app(app, add_specs=ENABLE_SWAGGER)  # add_specs False to disable UI and Swagger.json
 
 api.add_namespace(namespaces.packages.ns_packages)
+api.add_namespace(namespaces.users.ns)
+api.add_namespace(namespaces.places.ns)
 
 
 

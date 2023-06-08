@@ -4,7 +4,7 @@ body {
 }
 
 #map {
-    position: absolute;
+	position: absolute;
 	top: 0;
 	bottom: 0;
 	width: 100%;
@@ -28,24 +28,37 @@ body {
 	text-align: center;
 	font-family: 'Open Sans', sans-serif;
 }
-.map_popup_single_title
-{
+
+.map_popup_single_title {
 	font-weight: 600;
 }
+
 .map_popup_single_body {
 	font-weight: 300;
 }
 
-.modal-dialog{
+.modal-dialog {
 	max-width: none;
-	width:100% ;
+	width: 100%;
 }
-#dynamicTable
-{
+
+#dynamicTable {
 	max-width: 80%;
 }
-.modal_inner_wrapper_wrapper{
+
+.modal_inner_wrapper_wrapper {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
+
+.slider_wrapper {
+	position: absolute;
+	bottom: 2%;
+	left: 2%;
+	z-index: 1000;
+	max-width: 97%;
+
+}
+
+.slider_wrapper input {}

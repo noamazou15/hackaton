@@ -1,0 +1,27 @@
+.container {
+    margin-top: 50px;
+}
+
+h1 {
+    margin-top: 80px;
+}
+
+.btn {
+    margin-top: 20px;
+    font-family: "Arial", sans-serif;
+    transition: transform 0.3s ease;
+}
+
+.btn:hover {
+    transform: scale(0.95);
+    cursor: pointer;
+}
+
+.btn.active {
+    background-color: #333333;
+    color: #ffffff;
+}
+
+#packageTableContainer {
+    margin-top: 30px;
+}

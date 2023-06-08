@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" type="text/css" href="{{ url_for('serve_static', filename='css/package_status.css') }}" >
+
+<div class="container">
+    <h1 class="text-center">All Packages</h1>
+        <div class="text-center">
+            <input type="radio" class="btn-check" name="btnradio" id="myPackagesTab" autocomplete="off" checked>
+            <label class="btn btn-outline-primary" for="myPackagesTab">My Packages</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="myPickupsTab" autocomplete="off">
+            <label class="btn btn-outline-primary" for="myPickupsTab">My Pickups</label>
+
+        </div>
+    </div>
+    <div id="packageTableContainer">
+        <div id="packageList" class="list-group">
+            <!-- Package list items will be dynamically added here -->
+        </div>
+
+    </div>
+</div>
+
+<script src="{{ url_for('serve_static', filename='js/packageStatus.js') }}" ></script>
+
+{% endblock %}
+

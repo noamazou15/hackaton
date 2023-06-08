@@ -5,11 +5,15 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('home.html')
 
 @app.route('/map')
 def map():
     return render_template('map.html')
+
+@app.route('/packages')
+def packages():
+    return render_template('packages.html')
 
 # Route to serve static files
 @app.route('/static/<path:filename>')

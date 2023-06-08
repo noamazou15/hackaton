@@ -35,3 +35,17 @@ body {
 .map_popup_single_body {
 	font-weight: 300;
 }
+
+.modal-dialog{
+	max-width: none;
+	width:100% ;
+}
+#dynamicTable
+{
+	max-width: 80%;
+}
+.modal_inner_wrapper_wrapper{
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}

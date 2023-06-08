@@ -9,7 +9,7 @@ from pymongo.server_api import ServerApi
 
 import namespaces
 
-uri = "localhost:27017"
+uri = "mongodb+srv://root:root@cluster0.npjz8p7.mongodb.net/"
 # Create a new client and connect to the server
 mongo_client = MongoClient(uri, server_api=ServerApi('1'))["hackaton"]
 ENABLE_SWAGGER = os.environ.get('ENABLE_SWAGGER', True)

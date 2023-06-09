@@ -42,8 +42,24 @@ class Place(Resource):
             print(is_within_radius(radius, lat, lon, place_lat, place_lon))
             if is_within_radius(radius, lat, lon, place_lat, place_lon):
                 filtered_locs.append(loc['_id'])
+
+        place_cursor = mongo_client.packages.aggregate([
+    {
+        "$match": {
+            "pickup_location": location,
+            "dropoff_location": {"$in": filtered_locs}
+        }
+    },
+    {
+        "$lookup": {
+            "from": "locations",
+            "localField": "dropoff_location",
+            "foreignField": "_id",
+            "as": "dropoff_location"
+        }
+    }
+])
         
-        place_cursor = mongo_client.packages.find({"pickup_location": location,"dropoff_location": {"$in": filtered_locs} })
         place_cursor = list(place_cursor)
         place_cursor = convert_objectid_to_str(place_cursor)
 

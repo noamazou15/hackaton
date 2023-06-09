@@ -27,6 +27,7 @@ ns_packages = Namespace("Packages", description="packages managment", path='/pac
 @ns_packages.route('/new_package')
 class Package(Resource):
     def post(self):
+        print('here')
         payload = ns_packages.payload
         pickup = payload.get('pickup')
         dropoff = payload.get('dropoff')
@@ -36,11 +37,10 @@ class Package(Resource):
         user_session = session.get('user_session')
         user_id = mongo_client.users.find_one({'user_session': user_session})['_id']
         mongo_client.packages.insert_one({'pickup_location': pickup,'description':description,
-                'dropoff_location': dropoff, 'status':Status.WAITING, 'demanding_user_id': user_id,
+                'dropoff_location': dropoff, 'status':Status.WAITING.value, 'demanding_user_id': user_id,
                 'pickup_user_id':None,
                 '_id': packageID, 'notes': notes,'user_id': user_id})
-        
-        update_credits(user_to_pay=user_id, credits=1)
+        update_credits(credits=1)
 
         return user_session
 

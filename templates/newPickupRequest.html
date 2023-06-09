@@ -40,38 +40,44 @@
 
   form.addEventListener("submit", function (event) {
     event.preventDefault();
+    let packageDescription = document.getElementById("packageDescription").value;
+    let pickupAddress = document.getElementById("pickupAddress").value;
+    let dropoffAddress = document.getElementById("dropoffAddress").value;
+    let packageID = document.getElementById("packageID").value;
+    let extraNotes = document.getElementById("extraNotes").value;
 
-    const pickupAddress = document.getElementById("pickupAddress").value;
-    const dropoffAddress = document.getElementById("dropoffAddress").value;
-    const packageID = document.getElementById("packageID").value;
-    const extraNotes = document.getElementById("extraNotes").value;
-
-    const data = {
+    let payload = {
+      description: packageDescription,
       pickup: pickupAddress,
       dropoff: dropoffAddress,
       packageID: packageID,
-      notes: extraNotes
+      extraNotes: extraNotes,
     };
+  console.log(payload);
 
-    fetch("api/new_package", {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-      .then(response => {
-        if (response.ok) {
-          form.reset(); // Clear the form
-          displayMessage("success", "Your package has been submitted successfully.");
-        } else {
-          displayMessage("error", "Please try again in a few seconds.");
-        }
-      })
-      .catch(error => {
-        displayMessage("error", "Please try again in a few seconds.");
-        console.error(error);
-      });
+fetch('http://127.0.0.1:5000/packeges/new_package', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify(payload),
+})
+  .then(response => response.json())
+  .then(data => {
+    // Handle the response data here
+    
+    console.log(data);
+    console.log("almost done")
+  })
+  .catch(error => {
+    // Handle any errors that occurred during the request
+    console.error('Error:', error);
+  });
+  displayMessage("success", "Package Requested Successfully!");
+    // console.log("Getting the data");
+  form.reset();
+
+
   });
 
   function displayMessage(type, message) {

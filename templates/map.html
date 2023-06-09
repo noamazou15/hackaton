@@ -202,23 +202,45 @@
 			if ($.fn.DataTable.isDataTable('#dynamicTable')) {
 				table.destroy();
 			}
-			table = $('#dynamicTable').DataTable({
-				data: packages,
-				columns: [
-					{ data: 'description' },
-					{ data: 'dropoff_location' },
-					{ data: 'demanding_user_id' },
-					{ data: null, defaultContent: "" }
-				],
-				select: {
-					style: 'multi',
-				},
-				columnDefs: [{
-					orderable: false,
-					className: 'select-checkbox',
-					targets: 3
-				}]
+		
+			var dataTableData = [];
+			console.log(packages)
+			packages.then(function(){
+				packages.forEach(function (element) {
+					var dropoffLocation = element.dropoff_location[0];
+
+					var rowData = {
+						title: dropoffLocation.title,
+						longitude: dropoffLocation.coordinates.longitude,
+						latitude: dropoffLocation.coordinates.latitude,
+						address: dropoffLocation.address,
+						bounty: dropoffLocation.bounty,
+						pickupCenter: dropoffLocation.pickup_center ? 'Yes' : 'No'
+					};
+
+					dataTableData.push(rowData);
+				});
+				console.log(dataTableData)
+				table = $('#dynamicTable').DataTable({
+					data: dataTableData,
+					columns: [
+						{ data: 'title' },
+						{ data: 'address' },
+						{ data: 'bounty' },
+						{ data: null, defaultContent: "" }
+					],
+					select: {
+						style: 'multi',
+					},
+					columnDefs: [{
+						orderable: false,
+						className: 'select-checkbox',
+						targets: 3
+					}]
+				});
 			});
+			
+			
 		});
 		jQuery('#btnSave').on('click', function () {
 			var data = table.rows({ selected: true }).data();

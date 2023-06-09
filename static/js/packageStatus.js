@@ -15,6 +15,7 @@ let fdata = [];
 let myPackages = [];
 let myPickups = [];
 getMyPackages();
+getMyPickups();
 
 function displayMyPackages() {
   // Remove active class from all buttons
@@ -80,7 +81,7 @@ function displayMyPickups() {
         <p>Instructions: ${package.description}</p>
       </div>
 
-      <button class="btn btn-primary btn-sm" onclick="markPackageDelivered('${package._id}'); removePackageItem('${package._id}')">Delivered</button>
+      <button class="btn btn-primary btn-sm" onclick="markPackageDelivered('${package._id}'); removePackageItem1('${package._id}')">Delivered</button>
     `;
 
         listItem.innerHTML = itemContent;
@@ -99,16 +100,7 @@ function togglePackageDetails(listItem, package) {
 
 // Remove package item from the list
 function removePackageItem(packageId) {
-  console.log(gdata);
-  console.log(packageId);
   temp = [];
-  // if(type==1){
-  //   curr_data = fdata;
-  // }
-  // else{
-  //   curr_data = gdata;
-  // }
-  
     // Find and remove the package item from the corresponding list
     for (let i = 0; i < gdata.length; i++) {
        console.log(gdata[i]._id,packageId);
@@ -116,29 +108,39 @@ function removePackageItem(packageId) {
         temp.push(gdata[i]);
       }
     }    
-    console.log(fdata);
-    myPickups = myPickups.filter((package) => package.id !== packageId);
-    if (temp.length !== 0) {
-      gdata = temp;
-    }
-    // if(type==1){
-    //   fdata = curr_data;
-    // }
-    // else{
-    //   gdata = curr_data;
-    // }
+    
+    gdata = temp;
+    
     
     // Redisplay the packages based on the active tab
     const myPackagesTab = document.getElementById("myPackagesTab");
     if (myPackagesTab.classList.contains("active")) {
-        console.log("here");
-        console.log(gdata);
         displayMyPackages();
     } else {
         displayMyPickups();
     }
 }
-
+function removePackageItem1(packageId) {
+  temp = [];
+    // Find and remove the package item from the corresponding list
+    for (let i = 0; i < fdata.length; i++) {
+       console.log(fdata[i]._id,packageId);
+      if (fdata[i]._id != packageId) {
+        temp.push(fdata[i]);
+      }
+    }    
+    
+    fdata = temp;
+    
+    
+    // Redisplay the packages based on the active tab
+    const myPackagesTab = document.getElementById("myPackagesTab");
+    if (myPackagesTab.classList.contains("active")) {
+        displayMyPackages();
+    } else {
+        displayMyPickups();
+    }
+}
 // Mark package as received
 function markPackageReceived(packageId) {
     // Update the package status in the database (replace with your own logic)

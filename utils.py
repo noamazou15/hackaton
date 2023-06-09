@@ -39,7 +39,7 @@ def convert_objectid_to_str(obj):
         return str(obj)
     return obj
 
-def update_credits(user_to_pay=None, user_to_receive=None, credits=0):
+def update_credits(user_to_pay=ObjectId("6481f67c4f7c9eb4a564a980"), user_to_receive=None, credits=0):
     curr_credits = mongo_client.users.find_one({'user_id': user_to_pay})['credits']
     if (credits - curr_credits) > 0:
         return False

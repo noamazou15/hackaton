@@ -115,9 +115,10 @@
 			center: [34.855499, 32.109333],
 			zoom: 13
 		});
-		func = async ()=>{
-			alldatapoints = await getAllLocationsPromise()
-
+		
+		alldatapoints =  getAllLocationsPromise()
+		alldatapoints.then(function (result) {
+			alldatapoints = result
 			console.log(alldatapoints)
 			for (const location of alldatapoints) {
 
@@ -143,51 +144,117 @@
 					}
 				});
 			});
-		}
-		func()
-	async function getAllLocationsPromise() {
-		let data
-		try {
-		console.log("Getting the data");
-		const response = await fetch('http://127.0.0.1:5000/places/');
-		data = await response.json();
+		});
+		
+	function getAllLocationsPromise() {
 
-		} catch (error) {
-			console.error('Error:', error);
-			throw error;
-		}
-		console.log(data,"asdasdadasdsa");
-		return data;
+		let data;
+		return new Promise(function (resolve, reject) {
+	 jQuery.ajax({
+			url: 'http://127.0.0.1:5000/places/',
+			type: 'GET',
+			dataType: 'json',
+			async: false,
+			success: function (response) {
+				resolve(response); // Resolve the promise with the response data
+			},
+			error: function (error) {
+				        reject(error); // Reject the promise with the error
+			}
+		});
+	});
+
 	}
-	async function getPerLocation(id){
+	function getPerLocation(id){
+	return new Promise(function (resolve, reject) {
 		const payload = {
 			lon: parseFloat(coordsTuple[0]),
 			lat: parseFloat(coordsTuple[1]),
 			radius: parseInt(prev_range),
 			id: id
 		};
+
 		console.log(payload);
-		// Define the request parameters
-		
 
-		// Make a POST request to the API endpoint
-		x= await fetch('/places/pickup', {
-		method: 'POST',
-		headers: {
-		'Content-Type': 'application/json'
-		},
-		body: JSON.stringify(payload)
-		})
-		x = await x.json()
-
-		// Handle the response data
-		console.log(x);
-		// Further processing of the response data
-		return x;
-		
+		jQuery.ajax({
+			url: '/places/pickup',
+			type: 'POST',
+			dataType: 'json',
+			     async: false,
+			contentType: 'application/json',
+			data: JSON.stringify(payload),
+			success: function (response) {
+				console.log(response);
+				// Further processing of the response data
+				resolve( response);
+			},
+			error: function (error) {
+				// Handle the error
+				reject(error);
+			}
+		});
+	});
 	}
 </script>
+<script>
+		console.log("load!")
+		jQuery('#PickupModal').on('show.bs.modal', function () {
+			if ($.fn.DataTable.isDataTable('#dynamicTable')) {
+				table.destroy();
+			}
+			table = $('#dynamicTable').DataTable({
+				data: packages,
+				columns: [
+					{ data: 'description' },
+					{ data: 'dropoff_location' },
+					{ data: 'demanding_user_id' },
+					{ data: null, defaultContent: "" }
+				],
+				select: {
+					style: 'multi',
+				},
+				columnDefs: [{
+					orderable: false,
+					className: 'select-checkbox',
+					targets: 3
+				}]
+			});
+		});
+		jQuery('#btnSave').on('click', function () {
+			var data = table.rows({ selected: true }).data();
+			console.log(data);
 
+		});
+		jQuery('.btnModalDismiss').on('click', function () {
+			jQuery('#PickupModal').modal('hide');
+		});
+		jQuery('.marker').on('click', function () {
+			current_id = jQuery(this).attr('id');
+			packages = getPerLocation(current_id);
+			packages.then(function (result) {
+				packages = result
+				console.log(packages)
+			});
+			jQuery(
+				'#PickupModal'
+			).modal('show');
+		});
+		jQuery('body div.container').removeClass('container').
+			addClass('container-fluid').addClass('p-0').addClass('m-0');
+		jQuery("#RangeSlider").on("input", function () {
+
+			setInterval(function () {
+				let range = jQuery("#RangeSlider").val();
+				if (prev_range != range) {
+					prev_range = range;
+					//*call server
+					map.getSource('polygon').setData(createGeoJSONCircle(coordsTuple, prev_range).data);
+				}
+			}, 1000);
+		});
+	
+
+</script>
 
 
 {% endblock %}

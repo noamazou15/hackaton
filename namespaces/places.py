@@ -28,7 +28,7 @@ class Places(Resource):
     
 @ns.route('/pickup')
 class Place(Resource):
-    def get(self):
+    def post(self):
         payload = ns.payload
         lon = payload.get('lon')
         lat = payload.get('lat')

@@ -54,81 +54,22 @@
 	<div class="row align-items-end">
 		<div class="col-2 col-md-2 ">
 			<label for="RangeSlider" class="form-label">Range</label>
-			<input type="range" class="form-range" min="0.1" max="20" step="0.1" id="RangeSlider">
+			<input type="range" class="form-range" min="1" max="100" step="1" id="RangeSlider">
 		</div>
 	</div>
 </div>
 
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdn.datatables.net/select/1.3.3/js/dataTables.select.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-	$(document).ready(function () {
-		let prev_range = 0 //TODO FETCH
+
+
+<script type="text/javascript">
+	let prev_range = 0 //TODO FETCH
+		let alldatapoints = []
+		let current_id = 0
+		let packages = []
+		
 		mapboxgl.accessToken = 'pk.eyJ1IjoiYXJlbDY0IiwiYSI6ImNsaW15cmk0bzBiZTMzZGx3Y3ZqeDQxaTgifQ._GOxfOthk6aSqNiVUP9JKw';
-		const geojson = {
-			'type': 'LocationCollection',
-			'locations': [
-				{
-					'type': 'Feature',
-					'geometry': {
-						'type': 'Point',
-						'coordinates': [34.855495, 32.109334]
-					},
-					'properties':
-						[
-							{
-								'Title': 'Package For Pickup!',
-								'Address': 'Ibn Gabirol 53',
-								'Bounty': '5 Credits',
 
-							},
-							{
-								'Title': 'Package For Pickup!',
-								'Address': 'Ibn Gabirol 53',
-								'Bounty': '5 Credits'
-							},
-							{
-								'Title': 'Package For Pickup!',
-								'Address': 'Ibn Gabirol 53',
-								'Bounty': '5 Credits'
-							}
-
-						]
-				}
-				,
-				{
-					'type': 'Feature',
-					'geometry': {
-						'type': 'Point',
-						'coordinates': [34.855595, 32.109334]
-					},
-					'properties':
-						[
-							{
-								'Title': 'Package For Pickup!',
-								'Address': 'Ibn Gabirol 53',
-								'Bounty': '5 Credits'
-							},
-							{
-								'Title': 'Package For Pickup!',
-								'Address': 'Ibn Gabirol 53',
-								'Bounty': '5 Credits'
-							},
-							{
-								'Title': 'Package For Pickup!',
-								'Address': 'Ibn Gabirol 53',
-								'Bounty': '5 Credits'
-							}
-
-						]
-				}
-			]
-		};
 		const coordsTuple = [34.855495, 32.109334]
 		var createGeoJSONCircle = function (center, radiusInKm, points) {
 			if (!points) points = 64;
@@ -174,84 +115,79 @@
 			center: [34.855499, 32.109333],
 			zoom: 13
 		});
+		func = async ()=>{
+			alldatapoints = await getAllLocationsPromise()
 
+			console.log(alldatapoints)
+			for (const location of alldatapoints) {
 
-		// add markers to map
-		for (const location of geojson.locations) {
+				const el = document.createElement('div');
+				el.className = 'marker';
+				el.id = location._id
 
-			const el = document.createElement('div');
-			el.className = 'marker';
-
-			// make a marker for each feature and add it to the map
-
-			new mapboxgl.Marker(el)
-				.setLngLat(location.geometry.coordinates)
-				.addTo(map);
-		}
-		map.on('load', function () {
-			map.addSource("polygon", createGeoJSONCircle(coordsTuple, prev_range))
-			map.addLayer({
-				"id": "polygon",
-				"type": "fill",
-				"source": "polygon",
-				"layout": {},
-				"paint": {
-					"fill-color": "blue",
-					"fill-opacity": 0.3
-				}
-			});
-		});
-		jQuery('#PickupModal').on('show.bs.modal', function () {
-			if ($.fn.DataTable.isDataTable('#dynamicTable')) {
-				table.destroy();
+				// make a marker for each feature and add it to the map
+				new mapboxgl.Marker(el)
+					.setLngLat([location.coordinates.longitude, location.coordinates.latitude])
+					.addTo(map);
 			}
-			table = $('#dynamicTable').DataTable({
-				data: geojson.locations[0].properties,
-				columns: [
-					{ data: 'Title' },
-					{ data: 'Address' },
-					{ data: 'Bounty' },
-					{ data: null, defaultContent: "" }
-				],
-				select: {
-					style: 'multi',
-				},
-				columnDefs: [{
-					orderable: false,
-					className: 'select-checkbox',
-					targets: 3
-				}]
+			map.on('load', function () {
+				map.addSource("polygon", createGeoJSONCircle(coordsTuple, prev_range))
+				map.addLayer({
+					"id": "polygon",
+					"type": "fill",
+					"source": "polygon",
+					"layout": {},
+					"paint": {
+						"fill-color": "blue",
+						"fill-opacity": 0.3
+					}
+				});
 			});
-		});
-		jQuery('#btnSave').on('click', function () {
-			var data = table.rows({ selected: true }).data();
-			console.log(data);
+		}
+		func()
+	async function getAllLocationsPromise() {
+		let data
+		try {
+		console.log("Getting the data");
+		const response = await fetch('http://127.0.0.1:5000/places/');
+		data = await response.json();
 
-		});
-		jQuery('.btnModalDismiss').on('click', function () {
-			jQuery('#PickupModal').modal('hide');
-		});
-		jQuery('.marker').on('click', function () {
-			jQuery(
-				'#PickupModal'
-			).modal('show');
-		});
-		jQuery('body div.container').removeClass('container').
-			addClass('container-fluid').addClass('p-0').addClass('m-0');
-		jQuery("#RangeSlider").on("input", function () {
+		} catch (error) {
+			console.error('Error:', error);
+			throw error;
+		}
+		console.log(data,"asdasdadasdsa");
+		return data;
+	}
+	async function getPerLocation(id){
+		const payload = {
+			lon: parseFloat(coordsTuple[0]),
+			lat: parseFloat(coordsTuple[1]),
+			radius: parseInt(prev_range),
+			id: id
+		};
+		console.log(payload);
+		// Define the request parameters
+		
 
-			setInterval(function () {
-				let range = jQuery("#RangeSlider").val();
-				if (prev_range != range) {
-					prev_range = range;
-					//*call server
-					map.getSource('polygon').setData(createGeoJSONCircle(coordsTuple, prev_range).data);
-				}
-			}, 1000);
+		// Make a POST request to the API endpoint
+		x= await fetch('/places/pickup', {
+		method: 'POST',
+		headers: {
+		'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(payload)
+		})
+		x = await x.json()
 
-
-		});
-	});
+		// Handle the response data
+		console.log(x);
+		// Further processing of the response data
+		return x;
+		
+	}
 </script>
+
+
 
 {% endblock %}
